@@ -1,0 +1,10 @@
+{
+  "name": "transcription-server",
+  "version": "0.1.17",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/preview.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

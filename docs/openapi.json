@@ -1,0 +1,6496 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "TranscriptionServer API",
+    "version": "0.1.17",
+    "description": "未リリース候補の認識APIと独自管理API。OpenAI全仕様互換ではない。既存ジョブ・復旧・資源制御を維持する。管理状態の動的拡張は追加プロパティとして扱う。WebSocketイベントはx-websocket拡張。",
+    "license": {
+      "name": "リポジトリのLICENSEを参照"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://127.0.0.1:8769",
+      "description": "既定例。検証では隔離ポートを使用。"
+    }
+  ],
+  "paths": {
+    "/v1/models": {
+      "get": {
+        "operationId": "listModels",
+        "summary": "利用可能な実行環境のモデル一覧",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/models/{id}": {
+      "get": {
+        "operationId": "retrieveModel",
+        "summary": "モデルの個別取得",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Model"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "一覧のengine/model。スラッシュは%2Fへエンコード可能。"
+          }
+        ]
+      }
+    },
+    "/v1/audio/transcriptions": {
+      "post": {
+        "operationId": "createTranscription",
+        "summary": "ファイル認識・SSE逐次通知",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "選択した結果形式。SSEのdeltaは確定区間。doneは一度。切断は当該未完了ジョブを取消。",
+            "headers": {
+              "X-Meeting-Job-Id": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Accel-Buffering": {
+                "schema": {
+                  "const": "no"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Transcription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/VerboseTranscription"
+                    },
+                    {
+                      "$ref": "#/components/schemas/DiarizedTranscription"
+                    }
+                  ]
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/vtt": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/x-subrip": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "x-event-schema": {
+                  "$ref": "#/components/schemas/SseEvent"
+                },
+                "x-event-types": [
+                  "transcript.text.delta",
+                  "transcript.text.done",
+                  "error"
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Content-Lengthが必要。stream=trueはresponse_format=jsonのみ。対応オプションはcapabilitiesを確認する。verbose_jsonの厳密SDK統計スキーマは現行Whisperワーカーで確認。その他のエンジンのverbose_jsonは時刻中心の拡張形式。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "model": {
+                    "type": "string",
+                    "pattern": "^[^/]+/.+$"
+                  },
+                  "language": {
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "maxLength": 8192
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "response_format": {
+                    "type": "string",
+                    "enum": [
+                      "json",
+                      "verbose_json",
+                      "diarized_json",
+                      "text",
+                      "srt",
+                      "vtt"
+                    ],
+                    "default": "json"
+                  },
+                  "stream": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "keywords[]": {
+                    "type": "array",
+                    "maxItems": 64,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[^\\r\\n\\u0000]+$"
+                    },
+                    "description": "Haas用。フィールドを繰り返す。合計UTF-8で8192バイト以下。"
+                  },
+                  "decoding": {
+                    "type": "string",
+                    "enum": [
+                      "beam",
+                      "greedy"
+                    ]
+                  },
+                  "device": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "cpu",
+                      "gpu"
+                    ]
+                  },
+                  "diarize": {
+                    "type": "boolean"
+                  },
+                  "chunking_strategy": {
+                    "const": "auto"
+                  },
+                  "timestamp_granularities[]": {
+                    "const": "segment",
+                    "description": "verbose_jsonのみ。wordは未対応。"
+                  }
+                },
+                "required": [
+                  "model",
+                  "file"
+                ],
+                "additionalProperties": false
+              },
+              "encoding": {
+                "keywords[]": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtime": {
+      "get": {
+        "operationId": "connectRealtime",
+        "summary": "手動確定式リアルタイム認識のWebSocket",
+        "description": "WSS推奨。24kHz PCM16、1発言0.1〜30秒、接続あたり未完了4件、32接続。無音自動確定は未対応。更新はバッファ・未完了発言が空のとき。切断は接続所有の未完了ジョブのみ取消。GETでも操作認証が必要。通常HTTPのGET結果ではない。",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          },
+          {
+            "websocketProtocol": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "intent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "const": "transcription"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "WebSocketへ切替。サブプロトコルrealtime。"
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1Error"
+                }
+              }
+            }
+          }
+        },
+        "x-websocket": {
+          "clientEvents": {
+            "$ref": "#/components/schemas/WebSocketClientEvent"
+          },
+          "serverEvents": {
+            "$ref": "#/components/schemas/WebSocketServerEvent"
+          },
+          "inputFormat": {
+            "$ref": "#/components/schemas/PcmFormat"
+          },
+          "maxMessageBytes": 262144,
+          "maxUncommittedAudioBytes": 1440000,
+          "maxPendingCommits": 4,
+          "maxConnections": 32,
+          "sendTimeoutSeconds": 10,
+          "idleTimeoutSeconds": 120,
+          "automaticReconnect": false
+        }
+      }
+    },
+    "/api/models": {
+      "get": {
+        "operationId": "getModelInventory",
+        "summary": "全モデルの概要・導入状況・対応機能",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelInventory"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "起動と操作認証モードの確認",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "description": "local/LANのtokenは起動時の操作認証値。保存・例示しない。公開サーバーモードではBearer認証を要求する。"
+      }
+    },
+    "/api/status": {
+      "get": {
+        "operationId": "getStatus",
+        "summary": "実行・待機ジョブと停止状態",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduling": {
+      "get": {
+        "operationId": "getScheduling",
+        "summary": "実行枠とRAM／VRAM予算",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scheduling"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/storage": {
+      "get": {
+        "operationId": "getStorage",
+        "summary": "媒体保存容量",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "usedBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "freeBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "totalBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "jobCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "usedBytes",
+                    "freeBytes",
+                    "totalBytes",
+                    "jobCount"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/management": {
+      "get": {
+        "operationId": "getManagement",
+        "summary": "モデルと実行環境の管理状態",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "manageModel",
+        "summary": "モデル・実行環境の管理操作",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "refresh",
+                      "install",
+                      "load",
+                      "unload",
+                      "install-runtime",
+                      "delete",
+                      "install-all",
+                      "install-recommended",
+                      "delete-all",
+                      "cancel"
+                    ]
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "type": "string"
+                  },
+                  "lane": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "device": {
+                    "type": "string",
+                    "enum": [
+                      "cpu",
+                      "gpu",
+                      "auto"
+                    ]
+                  }
+                },
+                "required": [
+                  "action"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/updates": {
+      "get": {
+        "operationId": "getUpdates",
+        "summary": "自己更新の設定状態（同PC限定）",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs": {
+      "get": {
+        "operationId": "listJobs",
+        "summary": "ジョブ履歴（無条件時は旧形式、条件指定時はページング）",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Jobs"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "clientId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "workload",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "file",
+                "realtime"
+              ]
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createJob",
+        "summary": "媒体を転送して非同期ジョブを受付",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Content-Length",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "engine",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "device",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "cpu",
+                "gpu"
+              ]
+            }
+          },
+          {
+            "name": "diarize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "clientId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,64}$"
+            }
+          },
+          {
+            "name": "workload",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "file",
+                "realtime"
+              ]
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prompt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keywords",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "文字列のJSON配列をURLエンコードする。"
+          },
+          {
+            "name": "decoding",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "beam",
+                "greedy"
+              ]
+            }
+          },
+          {
+            "name": "temperature",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/jobs/{id}": {
+      "get": {
+        "operationId": "retrieveJob",
+        "summary": "ジョブ状態・同ID復旧の結果世代を取得",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/jobs/{id}/segments": {
+      "get": {
+        "operationId": "getSegments",
+        "summary": "確定字幕をカーソル取得",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Segments"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5000,
+              "default": 1000
+            }
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "editSegments",
+        "summary": "字幕を一括編集",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "segments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Segment"
+                      }
+                    },
+                    "job": {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  },
+                  "required": [
+                    "segments",
+                    "job"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "edits": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1000,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "speaker": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": true
+                    }
+                  }
+                },
+                "required": [
+                  "edits"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/segments/{segmentId}": {
+      "patch": {
+        "operationId": "editSegment",
+        "summary": "字幕を1件編集",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "segment": {
+                      "$ref": "#/components/schemas/Segment"
+                    }
+                  },
+                  "required": [
+                    "segment"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "segmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "speaker": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/cancel": {
+      "post": {
+        "operationId": "cancelJob",
+        "summary": "未完了ジョブを中止",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/delete": {
+      "post": {
+        "operationId": "deleteJob",
+        "summary": "停止中にジョブ全体を削除",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deleted": {
+                      "const": true
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "jobId": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "confirm": {
+                    "const": "delete-job"
+                  },
+                  "clientId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  }
+                },
+                "required": [
+                  "confirm",
+                  "clientId"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/remove-media": {
+      "post": {
+        "operationId": "removeMedia",
+        "summary": "停止中に媒体だけ削除",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "confirm": {
+                    "const": "remove-media"
+                  }
+                },
+                "required": [
+                  "confirm"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{id}/media-link": {
+      "get": {
+        "operationId": "createMediaLink",
+        "summary": "媒体の取得先URLを取得",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "expiresAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "expiresAt"
+                  ],
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/jobs/{id}/media": {
+      "get": {
+        "operationId": "downloadMedia",
+        "summary": "媒体を取得（Range対応）",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expires",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "signature",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "媒体",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Range取得",
+            "headers": {
+              "Content-Range": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/management/scheduling": {
+      "post": {
+        "operationId": "configureScheduling",
+        "summary": "アイドル時に実行枠・RAM／VRAM上限を設定",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scheduling"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "description": "maxJobs未満のrealtimeReserved、maxJobs以下のmaxGpuJobs。上限0は自動。GPU容量不明かつVRAM上限0ではdevice=autoがCPUを選択し、明示gpuは待機する。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchedulingSettings"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/management/restart": {
+      "post": {
+        "operationId": "restartServer",
+        "summary": "サーバー再起動（同PCまたは許可されたLAN）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "confirm": {
+                    "const": "restart-server"
+                  }
+                },
+                "required": [
+                  "confirm"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/drain": {
+      "post": {
+        "operationId": "drainServer",
+        "summary": "受付停止後に既存処理の完了を待つ（同PC限定）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "confirm": {
+                    "const": "drain-server"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "shutdown",
+                      "hold"
+                    ]
+                  }
+                },
+                "required": [
+                  "confirm"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/drain/cancel": {
+      "post": {
+        "operationId": "cancelDrain",
+        "summary": "完了待ち停止を取り消す（同PC限定）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/shutdown": {
+      "post": {
+        "operationId": "shutdownServer",
+        "summary": "処理がない場合だけ正常停止（同PC限定）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/updates/check": {
+      "post": {
+        "operationId": "update_check",
+        "summary": "自己更新のcheck操作（同PC限定）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/updates/credentials": {
+      "post": {
+        "operationId": "update_credentials",
+        "summary": "自己更新のcredentials操作（同PC限定）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "writeOnly": true
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/updates/forget": {
+      "post": {
+        "operationId": "update_forget",
+        "summary": "自己更新のforget操作（同PC限定）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/updates/apply": {
+      "post": {
+        "operationId": "update_apply",
+        "summary": "自己更新のapply操作（同PC限定）",
+        "security": [
+          {
+            "localToken": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "411": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "入力・認証・資源・実行エラー。503はRetry-Afterを確認。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": {
+        "operationId": "getOpenApi",
+        "summary": "API仕様書を取得",
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1文書",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "openapi",
+                    "info",
+                    "paths",
+                    "components"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "公開サーバーは設定済み接続キー。local/LANのv1操作は起動時token。"
+      },
+      "localToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Local-Token",
+        "description": "local/LANの操作用。health.tokenをメモリ内で取得する。"
+      },
+      "websocketProtocol": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Sec-WebSocket-Protocol",
+        "description": "realtime, openai-insecure-api-key.<token>。サーバーはキーを応答へ返さない。"
+      }
+    },
+    "schemas": {
+      "V1Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "param": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "code": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message",
+              "type",
+              "param",
+              "code"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": true
+      },
+      "LegacyError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": true
+      },
+      "Capabilities": {
+        "type": "object",
+        "properties": {
+          "schemaVersion": {
+            "const": 1
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "automaticLanguage": {
+            "type": "boolean"
+          },
+          "prompt": {
+            "type": "boolean"
+          },
+          "keywords": {
+            "type": "boolean"
+          },
+          "decoding": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "temperature": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "streamFormats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "wordTimestamps": {
+            "type": "boolean"
+          },
+          "chunkingStrategies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "optionScope": {
+            "const": "per_request"
+          },
+          "realtime": {
+            "type": "object",
+            "properties": {
+              "websocket": {
+                "type": "boolean"
+              },
+              "turnDetection": {
+                "type": "array",
+                "items": {
+                  "type": "null"
+                }
+              },
+              "inputFormat": {
+                "$ref": "#/components/schemas/PcmFormat"
+              },
+              "maxCommitSeconds": {
+                "const": 30
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "languages",
+          "prompt",
+          "stream",
+          "realtime"
+        ],
+        "additionalProperties": true
+      },
+      "Model": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "const": "model"
+          },
+          "created": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "owned_by": {
+            "type": "string"
+          },
+          "x_meeting": {
+            "type": "object",
+            "properties": {
+              "engineId": {
+                "type": "string"
+              },
+              "modelId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "available": {
+                "type": "boolean"
+              },
+              "modelInstalled": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "capabilities": {
+                "$ref": "#/components/schemas/Capabilities"
+              },
+              "modelInfo": {
+                "$ref": "#/components/schemas/ModelInformation"
+              }
+            },
+            "required": [
+              "engineId",
+              "modelId",
+              "capabilities"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "object",
+          "created",
+          "owned_by",
+          "x_meeting"
+        ],
+        "additionalProperties": true
+      },
+      "ModelList": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "const": "list"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Model"
+            }
+          }
+        },
+        "required": [
+          "object",
+          "data"
+        ],
+        "additionalProperties": true
+      },
+      "ModelInformation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "modelInstalled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "usage": {
+            "type": "string",
+            "enum": [
+              "transcription",
+              "integrated",
+              "vad",
+              "diarization"
+            ]
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/Capabilities"
+          },
+          "referenceSpeed": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "guidance": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": true
+      },
+      "ModelInventory": {
+        "type": "object",
+        "properties": {
+          "schemaVersion": {
+            "const": 1
+          },
+          "serverVersion": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelInformation"
+            }
+          },
+          "groups": {},
+          "referenceEnvironment": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "serverVersion",
+          "models"
+        ],
+        "additionalProperties": true
+      },
+      "Segment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "start": {
+            "type": "number"
+          },
+          "end": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          },
+          "speaker": {
+            "type": "string"
+          },
+          "timestampType": {
+            "type": "string"
+          },
+          "avg_logprob": {
+            "type": "number"
+          },
+          "compression_ratio": {
+            "type": "number"
+          },
+          "no_speech_prob": {
+            "type": "number"
+          },
+          "seek": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "temperature": {
+            "type": "number"
+          },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "start",
+          "end",
+          "text"
+        ],
+        "additionalProperties": true
+      },
+      "WhisperSegment": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Segment"
+          },
+          {
+            "required": [
+              "avg_logprob",
+              "compression_ratio",
+              "no_speech_prob",
+              "seek",
+              "temperature",
+              "tokens"
+            ]
+          }
+        ]
+      },
+      "Transcription": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "x_meeting": {
+            "$ref": "#/components/schemas/ResultExtension"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": true
+      },
+      "ResultExtension": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "timestampType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "processingMethod": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cpu",
+              "gpu"
+            ]
+          },
+          "resultGeneration": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "additionalProperties": true
+      },
+      "VerboseTranscription": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "const": "transcribe"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "language": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Segment"
+            }
+          },
+          "x_meeting": {
+            "$ref": "#/components/schemas/ResultExtension"
+          }
+        },
+        "required": [
+          "task",
+          "duration",
+          "text",
+          "segments"
+        ],
+        "additionalProperties": true
+      },
+      "WhisperVerbose": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VerboseTranscription"
+          },
+          {
+            "properties": {
+              "segments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/WhisperSegment"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DiarizedTranscription": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "const": "transcribe"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "const": "transcript.text.segment"
+                },
+                "start": {
+                  "type": "number"
+                },
+                "end": {
+                  "type": "number"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "speaker": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "start",
+                "end",
+                "text",
+                "speaker"
+              ],
+              "additionalProperties": true
+            }
+          },
+          "x_meeting": {
+            "$ref": "#/components/schemas/ResultExtension"
+          }
+        },
+        "required": [
+          "task",
+          "duration",
+          "text",
+          "segments"
+        ],
+        "additionalProperties": true
+      },
+      "RecognitionOptions": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "keywords": {
+            "type": "string",
+            "description": "Haas内部保存用。各語句を改行で結合する。API入力は配列。"
+          },
+          "decoding": {
+            "type": "string",
+            "enum": [
+              "beam",
+              "greedy"
+            ]
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "additionalProperties": true
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "uploading",
+              "queued",
+              "running",
+              "complete",
+              "error",
+              "cancelled",
+              "interrupted"
+            ]
+          },
+          "phase": {
+            "type": "string"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "device": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cpu",
+              "gpu"
+            ]
+          },
+          "workload": {
+            "type": "string",
+            "enum": [
+              "file",
+              "realtime"
+            ]
+          },
+          "clientId": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rangeStart": {
+            "type": "number"
+          },
+          "rangeEnd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "segmentCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "recognitionOptions": {
+                "$ref": "#/components/schemas/RecognitionOptions"
+              },
+              "resultGeneration": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "executionDevice": {
+                "type": "string"
+              },
+              "actualDevice": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "gpuFallback": {
+                "type": "boolean"
+              },
+              "gpuFallbackBeforeExecution": {
+                "type": "boolean"
+              },
+              "gpuFallbackReasonCode": {
+                "const": "gpu_capacity_unknown"
+              },
+              "waitingReason": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "runSeconds": {
+                "type": "number"
+              },
+              "waitSeconds": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "phase",
+          "metadata"
+        ],
+        "additionalProperties": true
+      },
+      "JobEnvelope": {
+        "type": "object",
+        "properties": {
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          }
+        },
+        "required": [
+          "job"
+        ],
+        "additionalProperties": true
+      },
+      "Jobs": {
+        "type": "object",
+        "properties": {
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Job"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "nextOffset": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "jobs"
+        ],
+        "additionalProperties": true
+      },
+      "Segments": {
+        "type": "object",
+        "properties": {
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Segment"
+            }
+          },
+          "next": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "resultGeneration": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "segments",
+          "next",
+          "total",
+          "resultGeneration"
+        ],
+        "additionalProperties": true
+      },
+      "SchedulingSettings": {
+        "type": "object",
+        "properties": {
+          "maxJobs": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 10
+          },
+          "realtimeReserved": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9
+          },
+          "maxGpuJobs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "ramLimitMiB": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "vramLimitMiB": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "maxJobs",
+          "realtimeReserved",
+          "maxGpuJobs",
+          "ramLimitMiB",
+          "vramLimitMiB"
+        ],
+        "additionalProperties": false
+      },
+      "Cost": {
+        "type": "object",
+        "properties": {
+          "ramMiB": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "vramMiB": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "ramMiB",
+          "vramMiB"
+        ],
+        "additionalProperties": true
+      },
+      "Scheduling": {
+        "type": "object",
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/SchedulingSettings"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/Cost"
+          },
+          "reserved": {
+            "$ref": "#/components/schemas/Cost"
+          },
+          "activeWorkers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "worker": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "jobId": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "device": {
+                  "type": "string"
+                },
+                "workload": {
+                  "type": "string",
+                  "enum": [
+                    "file",
+                    "realtime"
+                  ]
+                },
+                "reservation": {
+                  "$ref": "#/components/schemas/Cost"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "waiting": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "detectedVramMiB": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "availableRamMiB": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "priority": {
+            "const": "realtime"
+          },
+          "preemption": {
+            "const": false
+          }
+        },
+        "required": [
+          "settings",
+          "limits",
+          "reserved",
+          "activeWorkers"
+        ],
+        "additionalProperties": true
+      },
+      "SseEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "transcript.text.delta"
+              },
+              "delta": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "delta"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "transcript.text.done"
+              },
+              "text": {
+                "type": "string"
+              },
+              "x_meeting": {
+                "$ref": "#/components/schemas/ResultExtension"
+              }
+            },
+            "required": [
+              "type",
+              "text"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "error"
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              },
+              "x_meeting": {
+                "$ref": "#/components/schemas/ResultExtension"
+              }
+            },
+            "required": [
+              "type",
+              "error"
+            ],
+            "additionalProperties": true
+          }
+        ]
+      },
+      "PcmFormat": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "audio/pcm"
+          },
+          "rate": {
+            "const": 24000
+          }
+        },
+        "required": [
+          "type",
+          "rate"
+        ],
+        "additionalProperties": false
+      },
+      "RealtimeTranscription": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string",
+            "maxLength": 8192
+          }
+        },
+        "additionalProperties": false
+      },
+      "RealtimeSession": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "const": "realtime.transcription_session"
+          },
+          "type": {
+            "const": "transcription"
+          },
+          "audio": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "object",
+                "properties": {
+                  "format": {
+                    "$ref": "#/components/schemas/PcmFormat"
+                  },
+                  "transcription": {
+                    "$ref": "#/components/schemas/RealtimeTranscription"
+                  },
+                  "turn_detection": {
+                    "type": "null"
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          },
+          "x_meeting": {
+            "type": "object",
+            "properties": {
+              "device": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "cpu",
+                  "gpu"
+                ]
+              },
+              "maxCommitSeconds": {
+                "const": 30
+              },
+              "maxPendingCommits": {
+                "const": 4
+              },
+              "partialResults": {
+                "const": "committed_segments_only"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      },
+      "WsError": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "param": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "code",
+          "message"
+        ],
+        "additionalProperties": true
+      },
+      "WebSocketClientEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "session.update",
+                  "transcription_session.update"
+                ]
+              },
+              "event_id": {
+                "type": "string"
+              },
+              "session": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "transcription"
+                  },
+                  "audio": {
+                    "type": "object",
+                    "properties": {
+                      "input": {
+                        "type": "object",
+                        "properties": {
+                          "format": {
+                            "$ref": "#/components/schemas/PcmFormat"
+                          },
+                          "transcription": {
+                            "$ref": "#/components/schemas/RealtimeTranscription"
+                          },
+                          "turn_detection": {
+                            "type": "null"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x_meeting": {
+                    "type": "object",
+                    "properties": {
+                      "device": {
+                        "type": "string",
+                        "enum": [
+                          "auto",
+                          "cpu",
+                          "gpu"
+                        ]
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "input_audio_format": {
+                    "const": "pcm16"
+                  },
+                  "input_audio_transcription": {
+                    "$ref": "#/components/schemas/RealtimeTranscription"
+                  },
+                  "turn_detection": {
+                    "type": "null"
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "type",
+              "session"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "input_audio_buffer.append"
+              },
+              "audio": {
+                "type": "string",
+                "contentEncoding": "base64",
+                "description": "24kHz mono PCM16 LE。1発言0.1〜30秒。"
+              },
+              "event_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "audio"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "input_audio_buffer.commit",
+                  "input_audio_buffer.clear"
+                ]
+              },
+              "event_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "transcription.cancel"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "event_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "item_id"
+            ],
+            "additionalProperties": true
+          }
+        ]
+      },
+      "WebSocketServerEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "session.created",
+                  "session.updated",
+                  "transcription_session.updated"
+                ]
+              },
+              "session": {
+                "$ref": "#/components/schemas/RealtimeSession"
+              },
+              "event_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "session",
+              "event_id"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "input_audio_buffer.committed"
+              },
+              "event_id": {
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "previous_item_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "x_meeting": {
+                "$ref": "#/components/schemas/ResultExtension"
+              }
+            },
+            "required": [
+              "type",
+              "event_id",
+              "item_id",
+              "previous_item_id"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "input_audio_buffer.cleared"
+              },
+              "event_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "event_id"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "conversation.item.input_audio_transcription.delta"
+              },
+              "event_id": {
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "content_index": {
+                "const": 0
+              },
+              "delta": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "event_id",
+              "item_id",
+              "content_index",
+              "delta"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "conversation.item.input_audio_transcription.completed"
+              },
+              "event_id": {
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "content_index": {
+                "const": 0
+              },
+              "transcript": {
+                "type": "string"
+              },
+              "x_meeting": {
+                "$ref": "#/components/schemas/ResultExtension"
+              }
+            },
+            "required": [
+              "type",
+              "event_id",
+              "item_id",
+              "content_index",
+              "transcript"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "conversation.item.input_audio_transcription.failed"
+              },
+              "event_id": {
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "content_index": {
+                "const": 0
+              },
+              "error": {
+                "$ref": "#/components/schemas/WsError"
+              },
+              "x_meeting": {
+                "$ref": "#/components/schemas/ResultExtension"
+              }
+            },
+            "required": [
+              "type",
+              "event_id",
+              "item_id",
+              "content_index",
+              "error"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "error"
+              },
+              "event_id": {
+                "type": "string"
+              },
+              "error": {
+                "$ref": "#/components/schemas/WsError"
+              }
+            },
+            "required": [
+              "type",
+              "event_id",
+              "error"
+            ],
+            "additionalProperties": true
+          }
+        ]
+      }
+    }
+  },
+  "x-authentication-policy": "空securityはlocal/LAN読取だけ。serverモードでは読取にもBearer必須。各パスは既存のHost・Origin・接続元検査を適用する。秘密値をURLに入れない。",
+  "x-transcription-limit-bytes": 17179869184
+}

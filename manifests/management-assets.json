@@ -1,0 +1,10 @@
+[
+  "management.html",
+  "management.css",
+  "management.mjs",
+  "connection-guide.mjs",
+  "management-model-list.mjs",
+  "management-model-state.mjs",
+  "model-guidance.mjs",
+  "model-metadata.json"
+]

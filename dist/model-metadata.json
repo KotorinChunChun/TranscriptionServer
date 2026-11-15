@@ -1,0 +1,515 @@
+{
+  "modelGuidance": {
+    "whisper/tiny": {
+      "time": "CPU実測 15.50秒（5分素材・処理時間の中央値）。Largeの約1/10時間（公式参考）",
+      "quality": "軽さ優先・内容の確認を推奨",
+      "bytes": 78203619,
+      "source": "https://huggingface.co/Systran/faster-whisper-tiny/tree/main",
+      "ram": "約1～2GiB（CPU int8・概算）",
+      "vram": "原実装の公式参考：約1GB"
+    },
+    "whisper/base": {
+      "time": "CPU実測 28.46秒（5分素材・処理時間の中央値）。Largeの約1/7時間（公式参考）",
+      "quality": "軽さと認識品質のバランス",
+      "bytes": 147882941,
+      "source": "https://huggingface.co/Systran/faster-whisper-base/tree/main",
+      "ram": "約1～2GiB（CPU int8・概算）",
+      "vram": "原実装の公式参考：約1GB"
+    },
+    "whisper/small": {
+      "time": "CPU実測 16.40秒（5分素材・処理時間の中央値）。Largeの約1/4時間（公式参考）",
+      "quality": "Tiny/Baseより精度重視の構成",
+      "bytes": 486212372,
+      "source": "https://huggingface.co/Systran/faster-whisper-small/tree/main",
+      "ram": "公式CPU int8例：1,477MB",
+      "vram": "原実装の公式参考：約2GB"
+    },
+    "whisper/medium": {
+      "time": "CPU実測 45.27秒（5分素材・処理時間の中央値）。Largeの約1/2時間（公式参考）",
+      "quality": "精度重視・計算量も増える",
+      "bytes": 1530571735,
+      "source": "https://huggingface.co/Systran/faster-whisper-medium/tree/main",
+      "ram": "約2～5GiB（CPU int8・概算）",
+      "vram": "原実装の公式参考：約5GB"
+    },
+    "whisper/large-v3-turbo": {
+      "time": "CPU実測 31.49秒（5分素材・処理時間の中央値）。Largeの約1/8時間（公式参考）",
+      "quality": "Large系を高速化した構成",
+      "bytes": 1621665983,
+      "source": "https://huggingface.co/mobiuslabsgmbh/faster-whisper-large-v3-turbo/tree/main",
+      "ram": "約2～6GiB（CPU int8・概算）",
+      "vram": "原実装の公式参考：約6GB"
+    },
+    "whisper/large-v3": {
+      "time": "CPU実測 217.66秒（5分素材・処理時間の中央値）。比較の基準（1倍）（公式参考）",
+      "quality": "精度重視・計算量が大きい",
+      "bytes": 3090835702,
+      "source": "https://huggingface.co/Systran/faster-whisper-large-v3/tree/main",
+      "ram": "約3～8GiB（CPU int8・概算）",
+      "vram": "原実装の公式参考：約10GB"
+    },
+    "haas/haas-ja-v1.0": {
+      "time": "CPU実測 9.74秒（5分素材・処理時間の中央値）",
+      "quality": "日本語向け・共通音声での精度比較なし",
+      "bytes": 656381472,
+      "source": "https://huggingface.co/sakasegawa/Haas-ja-v1.0-GGUF",
+      "ram": "約2～4GiB（概算）",
+      "vram": "約1.5～4GiB（概算）"
+    },
+    "qwen/qwen3-asr-0.6b": {
+      "time": "CPU実測 22.37秒（5分素材・処理時間の中央値）",
+      "quality": "多言語・1.7Bより軽量な構成",
+      "bytes": 841502336,
+      "source": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B",
+      "ram": "約2～4GiB（概算）",
+      "vram": "約1.5～4GiB（概算）"
+    },
+    "qwen/qwen3-asr-1.7b": {
+      "time": "CPU実測 48.57秒（5分素材・処理時間の中央値）",
+      "quality": "多言語・0.6Bより精度重視の構成",
+      "bytes": 2176109216,
+      "source": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B",
+      "ram": "約4～8GiB（概算）",
+      "vram": "約3～8GiB（概算）"
+    },
+    "reazon/reazonspeech-v2": {
+      "time": "CPU実測 11.52秒（5分素材・処理時間の中央値）",
+      "quality": "日本語向け・共通音声での精度比較なし",
+      "bytes": 660910656,
+      "source": "https://huggingface.co/sakasegawa/reazonspeech-nemo-v2-GGUF",
+      "ram": "約2～4GiB（概算）",
+      "vram": "約1.5～4GiB（概算）"
+    },
+    "parakeet/parakeet-tdt_ctc-0.6b-ja": {
+      "time": "CPU実測 9.23秒（5分素材・処理時間の中央値）",
+      "quality": "日本語向け・共通音声での精度比較なし",
+      "bytes": 661012416,
+      "source": "https://huggingface.co/sakasegawa/parakeet-tdt_ctc-0.6b-ja-GGUF",
+      "ram": "約2～4GiB（概算）",
+      "vram": "約1.5～4GiB（概算）"
+    },
+    "auxiliary/silero-vad": {
+      "time": "CPU実測 推論 0.392秒 / ロード 0.055秒（同一5分音声・C API・推論3回の中央値。ASRの処理時間とは範囲が異なります）",
+      "quality": "発話の検出。雑音や小声で誤検出の可能性",
+      "bytes": 1238624,
+      "source": "https://github.com/snakers4/silero-vad",
+      "ram": "約0.1～0.5GiB（概算）",
+      "vram": "個別の消費量は未測定"
+    },
+    "auxiliary/nemotron-3-diarization": {
+      "time": "CPU実測 推論 19.675秒 / ロード 0.092秒（同一5分音声・C API・推論3回の中央値。ASRの処理時間とは範囲が異なります）",
+      "quality": "話者の区別。重なり発話や短い声は要確認",
+      "bytes": 106179488,
+      "source": "https://huggingface.co/sakasegawa/Nemotron-3-Diarization-GGUF",
+      "ram": "約0.5～2GiB（概算）",
+      "vram": "約0.5～2GiB（概算）"
+    },
+    "nemotron-asr/nemotron-3.5-asr-streaming-0.6b": {
+      "time": "CPU実測 19.93秒（5分素材・処理時間の中央値・ロード込み）",
+      "quality": "多言語・共通音声での精度比較なし",
+      "bytes": 742090464,
+      "source": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b",
+      "ram": "約2～4GiB（概算）",
+      "vram": "約1.5～4GiB（概算）"
+    },
+    "nemotron-transcribe/nemotron-3.5-transcribe": {
+      "time": "本PC未測定（CPU・音声で変動）",
+      "quality": "文字起こし＋話者付与を一体処理。IQ4_NL量子化・本PC未評価",
+      "bytes": 18997225856,
+      "ram": "約20～24GiB（IQ4_NL・CPU・概算、本PC未実測）",
+      "vram": "CPU方式では使用しません（GPU方式は未対応）",
+      "source": "https://github.com/nyosegawa/speech.cpp/blob/v0.10.1/docs/models/nemotron-transcribe.md"
+    }
+  },
+  "referenceBenchmarks": {
+    "cpu": "12th Gen Intel(R) Core(TM) i5-12500T",
+    "cores": 6,
+    "logicalProcessors": 12,
+    "memoryGB": 34.0,
+    "device": "CPU",
+    "threads": 4,
+    "referenceDate": "2026-11-13",
+    "serverVersion": "0.1.10",
+    "repetitions": 3,
+    "audioSeconds": 300.032,
+    "speechSecondsEstimate": 51.752,
+    "sampleDescription": "同一の5分会議動画から抽出した300.032秒の音声（16kHz・モノラル・PCM16）。VADによる発話推定は51.752秒で、連続発話5分ではありません。",
+    "executionCondition": "CPU明示・4スレッド・日本語・話者分離なし。12モデルを各3回、並列実行せず計測。Whisperはint8・beam 5、ネイティブモデルはQ8_0。",
+    "definition": "各回の正規化出力文字数 ÷ 処理秒数を求め、3回の中央値を表示。NFKC正規化後、句読点・区切り・記号（Unicode分類P/Z/S）を除いて文字を数えます。この集計では改行を含みます。文字数の中央値÷時間の中央値ではありません。",
+    "processingDefinition": "サーバーAPIの処理時間。前処理・推論・結果保存を含み、待機・事前ロードを除きます。Nemotron ASRのみ区間ごとのモデルロードを含みます。",
+    "loadDefinition": "常駐APIの操作開始から準備完了までを別計測（ワーカー起動・0.2秒間隔の完了確認を含む）。OSキャッシュは消去していません。11モデルは事前ロード後に3回実行、Nemotron ASRは毎回ロード込みです。",
+    "fillerDefinition": "辞書の最長一致とJanome/IPADICの語境界・品詞条件で間投詞候補と文脈依存フィラー候補を数えます。候補回数と各回の1,000出力文字あたりの回数について、それぞれ3回の中央値を表示。応答・感動・談話標識・言い直しの手掛かりは含めません。",
+    "fillerCaution": "フィラーは出力傾向です。音声との一致を判定していないため、多いほど原音に忠実とは限りません。人手の正解文を使用しておらず、認識精度・原音忠実性は未評価です。",
+    "dictionary": {
+      "label": "日本語フィラー評価辞書（2026-11-13・84表記）",
+      "tokenizer": "Janome 0.5.0 / MeCab IPADIC",
+      "sha256": "839239a0024bb2a6355446ceb161cd51f03ef9b273fca7b01c0f15ea97dc75b9"
+    },
+    "caution": "この測定CPU・素材・版での保存済み参考値です。接続先PCでの再測定値ではありません。GPUは未測定。認識器ごとのVAD・分割・デコーダー、実行時負荷の差は残ります。誤生成でも文字/sは増えるため、速度から精度や推奨順位を決めません。",
+    "models": {
+      "whisper/tiny": {
+        "characters": 281,
+        "runSeconds": 15.502,
+        "charactersPerSecond": 17.35259966455941,
+        "processingMinSeconds": 7.423,
+        "processingMaxSeconds": 19.661,
+        "loadReadySeconds": 1.040204499848187,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 2,
+          "candidatesMin": 2,
+          "candidatesMax": 3,
+          "candidatesPer1000Characters": 7.435,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "whisper/base": {
+        "characters": 293,
+        "runSeconds": 28.464,
+        "charactersPerSecond": 9.801854974704892,
+        "processingMinSeconds": 25.748,
+        "processingMaxSeconds": 33.983,
+        "loadReadySeconds": 1.475070500280708,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 1,
+          "candidatesMin": 0,
+          "candidatesMax": 2,
+          "candidatesPer1000Characters": 3.067,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "whisper/small": {
+        "characters": 271,
+        "runSeconds": 16.4,
+        "charactersPerSecond": 16.52439024390244,
+        "processingMinSeconds": 16.249,
+        "processingMaxSeconds": 16.465,
+        "loadReadySeconds": 3.104913200251758,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 0,
+          "candidatesMin": 0,
+          "candidatesMax": 0,
+          "candidatesPer1000Characters": 0.0,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "whisper/medium": {
+        "characters": 308,
+        "runSeconds": 45.272,
+        "charactersPerSecond": 6.803322141721153,
+        "processingMinSeconds": 41.386,
+        "processingMaxSeconds": 50.658,
+        "loadReadySeconds": 4.567838800139725,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 4,
+          "candidatesMin": 4,
+          "candidatesMax": 4,
+          "candidatesPer1000Characters": 12.987,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "whisper/large-v3-turbo": {
+        "characters": 333,
+        "runSeconds": 31.487,
+        "charactersPerSecond": 10.575793184488838,
+        "processingMinSeconds": 30.431,
+        "processingMaxSeconds": 32.344,
+        "loadReadySeconds": 3.7578035001643,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 2,
+          "candidatesMin": 2,
+          "candidatesMax": 2,
+          "candidatesPer1000Characters": 6.006,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "whisper/large-v3": {
+        "characters": 320,
+        "runSeconds": 217.663,
+        "charactersPerSecond": 1.474756848890257,
+        "processingMinSeconds": 182.552,
+        "processingMaxSeconds": 223.059,
+        "loadReadySeconds": 7.709058000240475,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 3,
+          "candidatesMin": 3,
+          "candidatesMax": 4,
+          "candidatesPer1000Characters": 9.615,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "haas/haas-ja-v1.0": {
+        "characters": 281,
+        "runSeconds": 9.745,
+        "charactersPerSecond": 28.835300153925093,
+        "processingMinSeconds": 9.046,
+        "processingMaxSeconds": 10.532,
+        "loadReadySeconds": 1.2484177998267114,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 2,
+          "candidatesMin": 2,
+          "candidatesMax": 2,
+          "candidatesPer1000Characters": 7.117,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "qwen/qwen3-asr-0.6b": {
+        "characters": 321,
+        "runSeconds": 22.374,
+        "charactersPerSecond": 14.347009922231162,
+        "processingMinSeconds": 21.557,
+        "processingMaxSeconds": 22.676,
+        "loadReadySeconds": 1.4461920000612736,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 5,
+          "candidatesMin": 5,
+          "candidatesMax": 5,
+          "candidatesPer1000Characters": 15.576,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "qwen/qwen3-asr-1.7b": {
+        "characters": 322,
+        "runSeconds": 48.567,
+        "charactersPerSecond": 6.630016266188976,
+        "processingMinSeconds": 48.49,
+        "processingMaxSeconds": 48.649,
+        "loadReadySeconds": 2.7389936996623874,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 5,
+          "candidatesMin": 5,
+          "candidatesMax": 5,
+          "candidatesPer1000Characters": 15.528,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "reazon/reazonspeech-v2": {
+        "characters": 238,
+        "runSeconds": 11.517,
+        "charactersPerSecond": 20.665103759659633,
+        "processingMinSeconds": 11.39,
+        "processingMaxSeconds": 11.84,
+        "loadReadySeconds": 0.8678564000874758,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 0,
+          "candidatesMin": 0,
+          "candidatesMax": 0,
+          "candidatesPer1000Characters": 0.0,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "parakeet/parakeet-tdt_ctc-0.6b-ja": {
+        "characters": 264,
+        "runSeconds": 9.226,
+        "charactersPerSecond": 28.61478430522436,
+        "processingMinSeconds": 8.981,
+        "processingMaxSeconds": 9.694,
+        "loadReadySeconds": 0.8264712998643517,
+        "loadIncludedInProcessing": false,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・常駐後3回",
+        "filler": {
+          "candidatesMedian": 1,
+          "candidatesMin": 1,
+          "candidatesMax": 1,
+          "candidatesPer1000Characters": 3.788,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      },
+      "nemotron-asr/nemotron-3.5-asr-streaming-0.6b": {
+        "characters": 202,
+        "runSeconds": 19.932,
+        "charactersPerSecond": 10.134457154324705,
+        "processingMinSeconds": 19.62,
+        "processingMaxSeconds": 20.828,
+        "loadReadySeconds": null,
+        "loadIncludedInProcessing": true,
+        "repetitions": 3,
+        "serverVersion": "0.1.10",
+        "referenceDate": "2026-11-13",
+        "condition": "同一5分素材・CPU 4スレッド・日本語・分離なし・各3回（区間ロード込み）",
+        "filler": {
+          "candidatesMedian": 2,
+          "candidatesMin": 2,
+          "candidatesMax": 2,
+          "candidatesPer1000Characters": 9.901,
+          "kind": "output_tendency",
+          "audioVerified": false
+        }
+      }
+    },
+    "auxiliaryCondition": "Silero VAD・Nemotron話者分離は同一音声・CPU 4スレッド・各3回、speech.cpp C APIで推論のみを別計測（ウォームアップなし・ロードと音声コピーを除く）。文字を出力しないため文字/s・フィラー評価は対象外です。"
+  },
+  "optionalModelCandidates": [
+    {
+      "id": "nemotron-transcribe/nemotron-3.5-transcribe",
+      "engine": "nemotron-transcribe",
+      "engineLabel": "Nemotron一体型",
+      "label": "Nemotron 3.5 Transcribe 30B-A4B",
+      "displayOnly": true,
+      "supported": false,
+      "availability": "unavailable",
+      "managementState": "separate_runtime_required",
+      "statusMessage": "この表示元APIでは実行可否を確認できません。約19GBのモデル取得・本PCでの実推論は未実施です。",
+      "installable": false,
+      "loadable": false,
+      "processingMethods": []
+    }
+  ],
+  "groups": [
+    {
+      "id": "diarization",
+      "label": "補助モデル：話者分離",
+      "description": [
+        [
+          "仕組み",
+          "声の特徴と時間的な変化から、発話を話者ごとに分けます。話者は録音内の番号で区別します。"
+        ],
+        [
+          "向く用途",
+          "複数人の会話・インタビューなどを、誰がいつ話したかで整理する。"
+        ],
+        [
+          "入力",
+          "音声。動画の場合は、音声を抽出して渡します。"
+        ],
+        [
+          "出力",
+          "話者ラベルと各発話の開始・終了時刻。文字起こしと組み合わせて字幕へ話者を付けます。"
+        ]
+      ]
+    },
+    {
+      "id": "vad",
+      "label": "補助モデル：音声区間検出",
+      "description": [
+        [
+          "仕組み",
+          "短い時間ごとの音の特徴から、人の発話がある区間を推定します。"
+        ],
+        [
+          "向く用途",
+          "無音の多い録音から発話部分を見つけ、文字起こしなどの処理対象を絞る。"
+        ],
+        [
+          "使用箇所",
+          "Haas・Qwen3-ASR・ReazonSpeech・Parakeetの認識で使用し、モデル導入時に一緒に取得します。Nemotron ASRでは導入済みなら区切り処理に使用します。Whisperはワーカー内蔵のVADを使うため、このカードの追加導入は不要です。"
+        ],
+        [
+          "入力",
+          "音声。動画の場合は、音声を抽出して渡します。"
+        ],
+        [
+          "出力",
+          "発話区間の開始・終了時刻の一覧。発言内容や話者名は出力しません。"
+        ]
+      ]
+    },
+    {
+      "id": "transcription",
+      "label": "文字起こしモデル",
+      "description": [
+        [
+          "仕組み",
+          "音声の特徴を学習済みの言語・発話パターンと照合し、話された内容を文章へ変換します。"
+        ],
+        [
+          "向く用途",
+          "動画・録音の文字起こし、字幕作成、発言の検索や編集。対応言語・速度・精度はモデルで異なります。"
+        ],
+        [
+          "入力",
+          "音声と処理範囲・言語などの設定。動画の場合は、音声を抽出して渡します。"
+        ],
+        [
+          "出力",
+          "認識した本文。サーバーはモデルの時刻情報や処理区間を使い、開始・終了時刻付きの字幕にまとめます。"
+        ]
+      ]
+    },
+    {
+      "id": "integrated",
+      "label": "文字起こし＋話者分離（一体型）",
+      "description": [
+        [
+          "仕組み",
+          "音声と言語を扱う一体型モデルが、発言内容と話者タグをまとめて推定します。"
+        ],
+        [
+          "向く用途",
+          "複数人の長い録音を、話者付きの文字起こしとして整理する。"
+        ],
+        [
+          "入力",
+          "音声と処理指示。対応する推論環境へ渡します。"
+        ],
+        [
+          "出力",
+          "本文と話者タグ。対応環境の時刻取得設定により、単語時刻や話者区間も取得できます。"
+        ]
+      ]
+    }
+  ]
+}

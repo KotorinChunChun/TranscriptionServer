@@ -1,0 +1,7 @@
+# Optional PC/server Whisper runtime. Install only in the dedicated virtual environment.
+# https://pypi.org/project/faster-whisper/1.2.1/
+# https://pypi.org/project/ctranslate2/4.8.2/
+faster-whisper==1.2.1
+ctranslate2==4.8.2
+# faster-whisper 1.2.1 uses av.open(metadata_errors=...), removed in PyAV 19.
+av==16.0.1
