@@ -1,13 +1,13 @@
-# TranscriptionServer v0.1.17
+# TranscriptionServer v0.1.18
 
 動画・音声の文字起こしと話者分離を、複数のアプリから共通APIで利用するWindows向けサーバーです。RustがHTTP・ジョブ・SQLite履歴・管理画面を提供し、認識エンジンやモデルは必要時に専用領域へ導入します。
 
-Windows 11 x64向けの展開型ZIPを配布しています。
+Windows 11 x64向けのインストーラーと展開型ZIPを配布しています。
 
 ## 入手と初回起動
 
-1. [GitHub Releases](https://github.com/KotorinChunChun/TranscriptionServer/releases)からWindows x64のZIPを取得し、展開します。
-2. 展開したフォルダーをPowerShell 7で開き、次のコマンドで起動します。
+1. [GitHub Releases](https://github.com/KotorinChunChun/TranscriptionServer/releases)から `setup-x64.exe` を取得し、実行します。発行元は開発者の `KotorinChunChun` です。[署名の確認方法](docs/installer-signing.md)
+2. このPCだけで使う場合は、導入先をPowerShell 7で開き、次のコマンドで起動します。展開型ZIPを使う場合は、展開先で同じコマンドを実行します。
 
 ```powershell
 .\TranscriptionServer.exe --local --host 127.0.0.1 --port 8769 --no-browser
@@ -48,4 +48,4 @@ cargo run -- --local --host 127.0.0.1 --port 8769
 
 `scripts/build-release.py --portable-release` はWindows x64の展開型ZIPとSHA-256一覧を作成します。実行環境とモデルは起動後に準備します。Inno Setupインストーラーを作る場合は[署名設定](docs/installer-signing.md)が必要です。
 
-確認内容と未検証事項は[開発記録](dev/v0.1.17-imp.md)を参照してください。
+確認内容と未検証事項は[開発記録](dev/history/v0.1.18/v0.1.18-imp.md)を参照してください。
