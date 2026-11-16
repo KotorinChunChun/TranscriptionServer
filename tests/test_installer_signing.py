@@ -1,6 +1,7 @@
 """Release gates must fail before packaging/publication, not merely log errors."""
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -8,6 +9,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from zipfile import ZipFile
 
 SCRIPTS = Path(__file__).resolve().parents[1] / 'scripts'
 sys.path.insert(0, str(SCRIPTS))
@@ -41,7 +43,7 @@ class InstallerSigningTests(unittest.TestCase):
                 (root / folder).mkdir(parents=True, exist_ok=True)
             (root / 'package.json').write_text('{"version":"0.1.14"}')
             (root / 'manifests/management-assets.json').write_text('[]')
-            for file in ('README.md', 'launch-windows.cmd', 'scripts/start-server.ps1', 'scripts/Configure-LanFirewall.ps1', 'scripts/preservation.py'):
+            for file in ('README.md', 'launch-windows.cmd', 'scripts/start-server.ps1', 'scripts/Configure-LanFirewall.ps1', 'scripts/preservation.py', 'docs/openapi.json'):
                 (root / file).write_text('fixture')
             (root / 'target/x86_64-pc-windows-msvc/release/TranscriptionServer.exe').write_bytes(b'core')
             out = root / 'release/v0.1.14'
@@ -68,11 +70,12 @@ class InstallerSigningTests(unittest.TestCase):
                 if mode == 'signature-failure': raise RuntimeError('timestamp failed')
                 path.write_bytes(b'signed-and-verified')
 
+            options = ['--portable-release'] if mode == 'portable' else ['--iscc', str(root / 'ISCC.exe')]
             with patch.object(module, 'ROOT', root), patch.object(module, 'git', side_effect=lambda *args: '' if args[0] == 'status' else 'fixture-commit'), \
                  patch.object(module, 'check_installer_signing', side_effect=preflight), patch.object(module, 'sign_installer', side_effect=sign), \
                  patch.object(module.subprocess, 'run', side_effect=command), patch.dict(sys.modules, {'pefile':SimpleNamespace(PE=lambda _:SimpleNamespace(DIRECTORY_ENTRY_IMPORT=[]))}), \
-                 patch.object(sys, 'argv', ['build-release.py', '--iscc', str(root / 'ISCC.exe')]):
-                if mode == 'success': module.main()
+                 patch.object(sys, 'argv', ['build-release.py', *options]):
+                if mode in ('success', 'portable'): module.main()
                 else:
                     with self.assertRaises(RuntimeError): module.main()
             if mode == 'preflight-failure':
@@ -82,6 +85,16 @@ class InstallerSigningTests(unittest.TestCase):
                 self.assertEqual(events, ['preflight', 'compile', 'iscc', 'sign'])
                 self.assertFalse((out / 'SHA256SUMS.txt').exists())
                 self.assertFalse(list(out.glob('*.zip')))
+            elif mode == 'portable':
+                self.assertEqual(events, ['compile'])
+                archive = out / 'TranscriptionServer-v0.1.14-windows-x64.zip'
+                self.assertEqual(set(f.name for f in out.iterdir()), {'TranscriptionServer', archive.name, 'SHA256SUMS.txt'})
+                with ZipFile(archive) as payload:
+                    build = json.loads(payload.read('TranscriptionServer/BUILD.json'))
+                    self.assertEqual(build['releaseStatus'], 'release')
+                    self.assertEqual(build['gitCommit'], 'fixture-commit')
+                self.assertEqual((out / 'SHA256SUMS.txt').read_text().strip(),
+                                 hashlib.sha256(archive.read_bytes()).hexdigest() + '  ' + archive.name)
             else:
                 self.assertEqual(events, ['preflight', 'compile', 'iscc', 'sign', 'source'])
                 self.assertIn(hashlib.sha256(b'signed-and-verified').hexdigest() + '  ' + setup.name, (out / 'SHA256SUMS.txt').read_text())
@@ -89,6 +102,7 @@ class InstallerSigningTests(unittest.TestCase):
     def test_missing_certificate_stops_before_build(self): self.run_build('preflight-failure')
     def test_signing_failure_stops_before_archives_and_checksums(self): self.run_build('signature-failure')
     def test_checksums_use_verified_signed_installer(self): self.run_build('success')
+    def test_portable_release_ships_only_checked_zip(self): self.run_build('portable')
 
     def test_unsigned_installer_cannot_reach_credentials_or_network(self):
         module = load('publish-release')
