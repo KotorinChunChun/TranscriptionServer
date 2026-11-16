@@ -6,11 +6,20 @@ ROOT=Path(__file__).resolve().parents[1]
 def git(*args):
     return subprocess.run(['git','-c',f'safe.directory={ROOT.as_posix()}',*args],cwd=ROOT,text=True,capture_output=True,check=True).stdout.strip()
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--iscc');parser.add_argument('--candidate-dir',type=Path);parser.add_argument('--program-only',action='store_true');a=parser.parse_args()
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--iscc')
+    parser.add_argument('--candidate-dir',type=Path)
+    mode=parser.add_mutually_exclusive_group()
+    mode.add_argument('--program-only',action='store_true',help='create a program-only candidate')
+    mode.add_argument('--portable-release',action='store_true',help='create a Windows ZIP release without an installer')
+    a=parser.parse_args()
     if a.program_only and not a.candidate_dir:parser.error('--program-only requires --candidate-dir')
-    if not a.program_only and not a.iscc:parser.error('--iscc is required for an installer')
+    if a.portable_release and (a.candidate_dir or a.iscc):
+        parser.error('--portable-release cannot be combined with --candidate-dir or --iscc')
+    with_installer = not (a.program_only or a.portable_release)
+    if with_installer and not a.iscc:parser.error('--iscc is required for an installer')
     if git('status','--porcelain'):raise SystemExit('Commit reviewed source before building release assets')
-    if not a.program_only:check_installer_signing()
+    if with_installer:check_installer_signing()
     version=json.loads((ROOT/'package.json').read_text(encoding='utf-8-sig'))['version'];commit=git('rev-parse','HEAD')
     if a.candidate_dir:
         output=a.candidate_dir.resolve();base=(ROOT.parent/'runtime').resolve()
@@ -50,7 +59,7 @@ def main():
                 target=licenses/'rust'/f"{package['name']}-{package['version']}"/file.name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,target)
     (bundle/'rust-dependencies.json').write_text(json.dumps(rust_deps,indent=2),encoding='utf-8')
     if any((bundle/name).exists() for name in ('_internal','TranscriptionUpdater.exe','worker','runtime','runtimes','models')):raise SystemExit('Program-only bundle contains an unexpected runtime or model')
-    if not a.program_only:
+    if with_installer:
         subprocess.run([str(Path(a.iscc).resolve()),f'/DAppVersion={version}',f'/DBundleDir={bundle}',f'/DReleaseDir={output}',str(ROOT/'installer'/'TranscriptionServer.iss')],cwd=ROOT,check=True)
         sign_installer(output/f'TranscriptionServer-v{version}-setup-x64.exe')
     suffix=f'-candidate-{commit[:8]}' if a.candidate_dir else ''
@@ -58,9 +67,13 @@ def main():
     with zipfile.ZipFile(binary,'w',zipfile.ZIP_DEFLATED,compresslevel=6,strict_timestamps=False) as archive:
         for file in sorted(bundle.rglob('*')):
             if file.is_file():archive.write(file,Path('TranscriptionServer')/file.relative_to(bundle))
-    if a.program_only:
-        (output/'SHA256SUMS.txt').write_text(f'{hashlib.file_digest(binary.open("rb"),"sha256").hexdigest()}  {binary.name}\n',encoding='utf-8')
-        print(json.dumps({'version':version,'commit':commit,'binary':str(binary),'status':'unreleased-candidate'}));return
+    if not with_installer:
+        with binary.open('rb') as stream:
+            digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+        (output/'SHA256SUMS.txt').write_text(f'{digest}  {binary.name}\n',encoding='utf-8')
+        status = 'unreleased-candidate' if a.candidate_dir else 'release'
+        print(json.dumps({'version':version,'commit':commit,'binary':str(binary),'status':status}))
+        return
     subprocess.run([sys.executable,str(ROOT/'scripts'/'package-local.py')],cwd=ROOT,check=True)
     source=output/f'TranscriptionServer-v{version}-source.zip';shutil.copy2(ROOT/'dist'/'downloads'/'transcription-server.zip',source)
     sums=[]

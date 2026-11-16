@@ -2,7 +2,18 @@
 
 動画・音声の文字起こしと話者分離を、複数のアプリから共通APIで利用するWindows向けサーバーです。RustがHTTP・ジョブ・SQLite履歴・管理画面を提供し、認識エンジンやモデルは必要時に専用領域へ導入します。
 
-このリポジトリは公開用のソースです。実行ファイル・インストーラーは別途ビルドします。
+Windows 11 x64向けの展開型ZIPを配布しています。
+
+## 入手と初回起動
+
+1. [GitHub Releases](https://github.com/KotorinChunChun/TranscriptionServer/releases)からWindows x64のZIPを取得し、展開します。
+2. 展開したフォルダーをPowerShell 7で開き、次のコマンドで起動します。
+
+```powershell
+.\TranscriptionServer.exe --local --host 127.0.0.1 --port 8769 --no-browser
+```
+
+3. [管理画面](http://127.0.0.1:8769/)を開きます。初回は、認識に必要な実行環境とモデルの準備が完了するまで待ちます。
 
 ## 開発
 
@@ -35,6 +46,6 @@ cargo run -- --local --host 127.0.0.1 --port 8769
 
 ## Windows用の配布物
 
-`scripts/build-release.py` はWindows用プログラムとInno Setupのインストーラーを作成します。[署名設定](docs/installer-signing.md)が必要です。`scripts/publish-release.py` は非公開リポジトリ向けの配布補助であり、この公開リポジトリへのソース送信には使用しません。
+`scripts/build-release.py --portable-release` はWindows x64の展開型ZIPとSHA-256一覧を作成します。実行環境とモデルは起動後に準備します。Inno Setupインストーラーを作る場合は[署名設定](docs/installer-signing.md)が必要です。
 
 確認内容と未検証事項は[開発記録](dev/v0.1.17-imp.md)を参照してください。
