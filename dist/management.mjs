@@ -653,22 +653,22 @@ $('storageRefresh').onclick = async () => {
   }
 };
 async function updateStatus() {
-  for (const id of ['updateCheck', 'updateApply', 'githubToken', 'githubSave', 'githubConnect', 'githubForget']) $(id).disabled = true;
+  $('updateCheck').disabled = true;
+  $('updateApply').disabled = true;
   try {
     const value = await api('/api/updates');
     updating = value;
     $('updateVersion').textContent = `現在 v${value.currentVersion}`;
     $('updateMessage').textContent = value.message || '更新の確認を実行できます。';
-    $('githubState').textContent = value.credentialConfigured ? '設定済み' : '未設定';
     const busy = ['checking','downloading','draining','applying'].includes(value.state);
-    for (const id of ['updateCheck', 'githubToken', 'githubSave', 'githubConnect']) $(id).disabled = readOnly || busy;
-    $('githubForget').disabled = readOnly || busy || !value.credentialConfigured;
+    $('updateCheck').disabled = readOnly || busy;
     $('updateApply').hidden = !value.available || !value.installed;
     $('updateApply').disabled = readOnly || busy;
   } catch (error) {
     updating = null;
     $('updateMessage').textContent = error.message;
     $('updateApply').hidden = true;
+    $('updateCheck').disabled = readOnly;
   }
 }
 /** 更新関連の操作を行い、結果を更新状態として表示し直す。失敗は更新欄に出す。 */
@@ -693,28 +693,15 @@ $('connectionGuide').addEventListener('close', () => {
   $('openConnectionGuide').focus();
 });
 $('closeSettings').onclick = () => $('settings').close();
-$('settings').addEventListener('close', () => {
-  $('githubToken').value = '';
-});
 $('updateCheck').onclick = () => updateAction(async () => {
-  await api('/api/updates/check', {});
-  await updateStatus();
-});
-$('github').onsubmit = async event => {
-  event.preventDefault();
+  $('updateCheck').disabled = true;
+  $('updateApply').disabled = true;
   try {
-    await updateAction(async () => {
-      await api('/api/updates/credentials', {token: $('githubToken').value, save: $('githubSave').checked});
-      await updateStatus();
-    });
+    await api('/api/updates/check', {});
   } finally {
-    $('githubToken').value = '';
+    await updateStatus();
   }
-};
-$('githubForget').onclick = () => ask('更新用GitHub接続を解除', '保存した更新用の接続情報を削除します。', () => updateAction(async () => {
-  await api('/api/updates/forget', {});
-  await updateStatus();
-}));
+});
 $('updateApply').onclick = () => {
   if (!updating?.available) return;
   ask('更新して再起動', `v${updating.available.version}を適用します。`, () => updateAction(async () => {

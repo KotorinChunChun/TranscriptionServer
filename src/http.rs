@@ -501,7 +501,9 @@ async fn route(app: Arc<App>, request: Request<Body>) -> std::result::Result<Res
     if method == Method::POST && path == "/v1/audio/transcriptions" {
         return multipart_upload(app, request).await;
     }
-    if path.starts_with("/api/updates/") && method == Method::POST {
+    if matches!(path.as_str(), "/api/updates/check" | "/api/updates/apply")
+        && method == Method::POST
+    {
         let body = body_json(request).await?;
         return Ok(json_response(
             crate::updates::action(&app, &path, body)

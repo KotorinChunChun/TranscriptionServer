@@ -70,7 +70,7 @@ class Preview(SimpleHTTPRequestHandler):
                 return self.send_json(snapshot())
             if self.path == "/api/updates":
                 version=json.loads((ROOT.parent / "package.json").read_text(encoding="utf-8"))["version"]
-                return self.send_json({"currentVersion":version,"state":"preview","installed":False,"credentialConfigured":False,"available":None,"message":"表示専用プレビューでは更新操作は無効です。"})
+                return self.send_json({"currentVersion":version,"state":"preview","installed":False,"available":None,"message":"表示専用プレビューでは更新操作は無効です。"})
         except (OSError, ValueError, KeyError):
             return self.send_json({"error":"最新版のモデル一覧を取得できません。旧一覧への代替表示は行いません。"}, 503)
         if self.path.startswith("/api/"):

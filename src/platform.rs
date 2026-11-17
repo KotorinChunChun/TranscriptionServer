@@ -256,70 +256,6 @@ mod win {
             )?))
         }
     }
-    const CREDENTIAL_TARGET: &str =
-        "TranscriptionServer/GitHub/KotorinChunChun/TranscriptionServer";
-    pub fn token_get() -> Result<String> {
-        token_read_named(CREDENTIAL_TARGET)
-    }
-    pub fn token_save(value: &str) -> Result<()> {
-        token_save_named(CREDENTIAL_TARGET, value)
-    }
-    pub fn token_remove() -> Result<()> {
-        token_remove_named(CREDENTIAL_TARGET)
-    }
-    fn token_read_named(name: &str) -> Result<String> {
-        use windows_sys::Win32::Security::Credentials::*;
-        let target = format!("{name}\0").encode_utf16().collect::<Vec<_>>();
-        unsafe {
-            let mut cred = std::ptr::null_mut();
-            if CredReadW(target.as_ptr(), CRED_TYPE_GENERIC, 0, &mut cred) == 0 {
-                if GetLastError() == ERROR_NOT_FOUND {
-                    return Ok(String::new());
-                }
-                return Err(std::io::Error::last_os_error().into());
-            };
-            let raw = if (*cred).CredentialBlobSize == 0 {
-                vec![]
-            } else {
-                std::slice::from_raw_parts(
-                    (*cred).CredentialBlob,
-                    (*cred).CredentialBlobSize as usize,
-                )
-                .to_vec()
-            };
-            let value = String::from_utf8(raw);
-            CredFree(cred as _);
-            Ok(value?)
-        }
-    }
-    fn token_save_named(name: &str, value: &str) -> Result<()> {
-        use windows_sys::Win32::Security::Credentials::*;
-        let mut target = format!("{name}\0").encode_utf16().collect::<Vec<_>>();
-        unsafe {
-            let mut cred: CREDENTIALW = std::mem::zeroed();
-            cred.Type = CRED_TYPE_GENERIC;
-            cred.TargetName = target.as_mut_ptr();
-            cred.CredentialBlob = value.as_ptr() as _;
-            cred.CredentialBlobSize = value.len() as u32;
-            cred.Persist = CRED_PERSIST_LOCAL_MACHINE;
-            if CredWriteW(&cred, 0) == 0 {
-                return Err(std::io::Error::last_os_error().into());
-            }
-        }
-        Ok(())
-    }
-    fn token_remove_named(name: &str) -> Result<()> {
-        use windows_sys::Win32::Security::Credentials::*;
-        let target = format!("{name}\0").encode_utf16().collect::<Vec<_>>();
-        unsafe {
-            if CredDeleteW(target.as_ptr(), CRED_TYPE_GENERIC, 0) == 0
-                && GetLastError() != ERROR_NOT_FOUND
-            {
-                return Err(std::io::Error::last_os_error().into());
-            }
-        }
-        Ok(())
-    }
     pub fn restore_display_version(root: &Path, version: &str) -> Result<()> {
         use windows_sys::Win32::System::Registry::*;
         let key = format!(
@@ -393,26 +329,6 @@ mod win {
         }
         Ok(())
     }
-    #[cfg(test)]
-    mod credential_tests {
-        use super::*;
-        #[test]
-        fn credential_round_trip_uses_its_own_unique_target() {
-            let name = format!("TranscriptionServer/test/{}", uuid::Uuid::new_v4());
-            struct Cleanup(String);
-            impl Drop for Cleanup {
-                fn drop(&mut self) {
-                    let _ = token_remove_named(&self.0);
-                }
-            }
-            let _cleanup = Cleanup(name.clone());
-            assert_eq!(token_read_named(&name).unwrap(), "");
-            token_save_named(&name, "synthetic-token-only").unwrap();
-            assert_eq!(token_read_named(&name).unwrap(), "synthetic-token-only");
-            token_remove_named(&name).unwrap();
-            assert_eq!(token_read_named(&name).unwrap(), "");
-        }
-    }
 }
 #[cfg(windows)]
 pub use win::*;
@@ -462,18 +378,6 @@ impl Instance {
     pub fn new() -> Result<Self> {
         Ok(Self { existing: false })
     }
-}
-#[cfg(not(windows))]
-pub fn token_get() -> Result<String> {
-    Ok(String::new())
-}
-#[cfg(not(windows))]
-pub fn token_save(_: &str) -> Result<()> {
-    bail!("Windows資格情報はWindowsで利用してください")
-}
-#[cfg(not(windows))]
-pub fn token_remove() -> Result<()> {
-    Ok(())
 }
 pub fn process_record(path: &Path, port: u16, instance_id: &str) -> Result<()> {
     let created = identity(std::process::id())?

@@ -50,7 +50,6 @@ pub struct App {
     pub job_scopes: Mutex<HashMap<String, Vec<Arc<platform::Job>>>>,
     pub worker_error: Mutex<Option<String>>,
     pub update_state: Mutex<Value>,
-    pub update_token: Mutex<String>,
     pub update_busy: AtomicBool,
 }
 impl App {
@@ -164,7 +163,6 @@ impl App {
             update_state: Mutex::new(
                 json!({"currentVersion":VERSION,"available":null,"state":"idle","lastChecked":null,"message":""}),
             ),
-            update_token: Mutex::new(String::new()),
             update_busy: AtomicBool::new(false),
         });
         crate::models::refresh(&app).await;

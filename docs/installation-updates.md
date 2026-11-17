@@ -26,17 +26,16 @@ TranscriptionServer-v0.1.10-setup-x64.exeを実行する。プログラム先は
 | 設定 | %LOCALAPPDATA%/TranscriptionServer/settings.json |
 | 録音・字幕・SQLite | %LOCALAPPDATA%/TranscriptionServer/data |
 | 更新取得/記録/バックアップ | %LOCALAPPDATA%/TranscriptionServer/updates |
-| GitHubキー | Windows資格情報マネージャーの現在のユーザー |
 
 明示した--data-dirは継続し、旧DBが旧保存先にだけある場合は引き継ぐ。既存DBのjobs/segments/job_indexのJSONとIDを保持する。プロセス再起動で途中の推論を再開したふりはせずinterruptedにし、確定字幕を保持する。アンインストールでもデータ・設定・資格情報・更新バックアップを残す。
 
 ## 更新確認と適用
 
-更新元は非公開KotorinChunChun/TranscriptionServer固定。対象リポジトリのContents読み取り権限を持つトークンを「アプリの更新」で設定する。保存する場合だけWindows資格情報へ書き、保存しなければプロセス内だけで保持する。TRANSCRIPTION_GITHUB_TOKENでも指定できる。値は応答・ログ・設定JSON・更新計画へ含めない。
+「設定・更新」の「更新を確認」で公開リリースを確認する。更新元はアプリ内部で固定されており、トークンの入力やサインインは不要。旧版が保存した認証情報は更新に使わない。
 
 導入版は起動5秒後と24時間ごと、または手動で更新を確認する。Rust世代を示すReleaseだけを比較し、旧Python v4系を数値の大小で誤選択しない。draft/prerelease/同版/旧版は適用しない。
 
-利用者が自作確認画面で適用した時にだけ取得・再起動する。転送/認識中は拒否し、適用直前は新規受付を止める。サイズとSHA256を検証し、HTTPSの許可ホストへだけ転送する。GitHub認証ヘッダーは他のホストへ渡さない。
+利用者が確認画面で適用した時にだけ取得・再起動する。転送/認識中は拒否し、適用直前は新規受付を止める。公開インストーラーをHTTPSで取得し、配布ホストを制限して、サイズとSHA-256を照合する。
 
 Rust本体EXEをアプリ外の更新キャッシュへコピーし、独立したヘルパーとして起動する。親PID/開始時刻/終了状態と承認引き継ぎを照合し、プログラムとSQLiteをバックアップする。サイレント適用後に同じ引数で起動し、healthのappId/版/実PIDを確認する。更新ヘルパーにPythonは使わない。
 
