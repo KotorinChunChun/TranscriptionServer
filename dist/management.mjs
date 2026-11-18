@@ -13,6 +13,7 @@ import {
 import {modelPresentation, dependencyPresentation, modelActions, operationText, operationPercent, bulkCandidates, runtimePresentation, runtimeStoragePresentation} from './management-model-state.mjs';
 import {modelBytes, sortModels, nextModelSort, modelSortDirection} from './management-model-list.mjs';
 import {connectionGuide} from './connection-guide.mjs';
+import {bindHistory} from './management-history.mjs';
 
 const $ = id => document.getElementById(id);
 const make = (tag, text) => {
@@ -722,4 +723,5 @@ async function start() {
   }
 }
 if (new URL(location.href).searchParams.get('guide') === '1') openConnectionGuide();
+bindHistory(api);
 await start();

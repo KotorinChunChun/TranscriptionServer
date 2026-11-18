@@ -87,6 +87,30 @@ fn query(request: &Request<Body>) -> HashMap<String, String> {
 fn header<'a>(request: &'a Request<Body>, name: &str) -> Option<&'a str> {
     request.headers().get(name).and_then(|v| v.to_str().ok())
 }
+const HISTORY: &str = "/api/admin/history";
+
+fn history_path(path: &str) -> bool {
+    path == HISTORY
+        || path
+            .strip_prefix(HISTORY)
+            .is_some_and(|rest| rest.starts_with('/'))
+}
+
+fn history_job_path(path: &str) -> Option<(&str, &str)> {
+    job_suffix(path.strip_prefix(HISTORY)?.strip_prefix('/')?)
+}
+
+fn local_host(host: &str) -> bool {
+    host.parse::<axum::http::uri::Authority>()
+        .is_ok_and(|authority| {
+            let host = authority.host().trim_matches(['[', ']']);
+            host.eq_ignore_ascii_case("localhost")
+                || host
+                    .parse::<std::net::IpAddr>()
+                    .is_ok_and(|ip| ip.is_loopback())
+        })
+}
+
 fn authorize(
     app: &App,
     peer: SocketAddr,
@@ -106,6 +130,16 @@ fn authorize(
         return Err(err(
             StatusCode::FORBIDDEN,
             "このページからの接続は許可されていません。",
+        ));
+    }
+    if history_path(request.uri().path())
+        && (!peer.ip().is_loopback()
+            || !local_host(host)
+            || header(request, "sec-fetch-site") == Some("cross-site"))
+    {
+        return Err(err(
+            StatusCode::FORBIDDEN,
+            "処理履歴はサーバーPC上で利用してください。",
         ));
     }
     if (request.uri().path().starts_with("/api/updates")
@@ -220,6 +254,12 @@ async fn dispatch(
     response
         .headers_mut()
         .insert("cache-control", HeaderValue::from_static("no-store"));
+    if history_path(&path) {
+        response.headers_mut().insert(
+            "cross-origin-resource-policy",
+            HeaderValue::from_static("same-origin"),
+        );
+    }
     if response.status() == StatusCode::SERVICE_UNAVAILABLE {
         response
             .headers_mut()
@@ -334,6 +374,15 @@ async fn route(app: Arc<App>, request: Request<Body>) -> std::result::Result<Res
         return Ok(response);
     }
     if matches!(method, Method::GET | Method::HEAD) {
+        if history_path(&path) {
+            return job_history(
+                &app,
+                &path,
+                header(&request, "range").map(str::to_owned),
+                &qs,
+            )
+            .await;
+        }
         match path.as_str() {
             "/api/health" => return Ok(json_response(app.health())),
             "/v1/openapi.json" => {
@@ -421,7 +470,7 @@ async fn route(app: Arc<App>, request: Request<Body>) -> std::result::Result<Res
                         (
                             format!(
                                 "/api/jobs/{id}/media?expires={expires}&signature={}",
-                                signature(&app, id, expires)
+                                signature(&app, id, expires, false)
                             ),
                             Some(
                                 chrono::DateTime::from_timestamp(expires, 0)
@@ -581,15 +630,101 @@ fn number(
         .unwrap_or(Ok(default))
 }
 fn job_path(path: &str) -> Option<(&str, &str)> {
-    let rest = path.strip_prefix("/api/jobs/")?;
+    job_suffix(path.strip_prefix("/api/jobs/")?)
+}
+fn job_suffix(rest: &str) -> Option<(&str, &str)> {
     let (id, action) = rest.split_once('/').unwrap_or((rest, ""));
     id_valid(id).then_some((id, action))
+}
+
+fn history_summary(job: &Value) -> Value {
+    let metadata = &job["metadata"];
+    json!({
+        "id": job["id"], "createdAt": job["createdAt"], "fileName": job["fileName"],
+        "clientId": job["clientId"], "workload": job["workload"], "status": job["status"],
+        "task": job["task"], "segmentCount": job["segmentCount"], "engine": job["engine"],
+        "modelId": job["modelId"].as_str().or_else(|| metadata["modelId"].as_str()),
+        "model": metadata["model"],
+    })
+}
+
+async fn job_history(
+    app: &App,
+    path: &str,
+    range: Option<String>,
+    qs: &HashMap<String, String>,
+) -> std::result::Result<Response, ApiError> {
+    if path == HISTORY {
+        let mut page = app.store.page(25, number(qs, "offset", 0)?, None, None)?;
+        page["jobs"] = page["jobs"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(history_summary)
+            .collect();
+        return Ok(json_response(page));
+    }
+    let Some((id, action)) = history_job_path(path) else {
+        return Err(err(StatusCode::NOT_FOUND, "処理履歴が見つかりません。"));
+    };
+    if action == "segments" {
+        return Ok(json_response(app.store.segments(
+            id,
+            number(qs, "after", 0)? as u64,
+            200,
+        )?));
+    }
+    let job = app.store.get(id)?;
+    let source = app.store.dir.join(id).join("source.media");
+    let filename = job["fileName"].as_str().unwrap_or("");
+    let content_type = match mime(filename) {
+        kind if kind.starts_with("audio/") || kind.starts_with("video/") => kind,
+        _ => "application/octet-stream",
+    };
+    let can_play = job["status"] != "uploading"
+        && job["metadata"]["mediaRemoved"] != true
+        && tokio::fs::metadata(&source)
+            .await
+            .is_ok_and(|m| m.is_file() && m.len() > 0);
+    match action {
+        "" => {
+            let metadata = &job["metadata"];
+            let mut result = history_summary(&job);
+            result["duration"] = job["duration"].clone();
+            result["finishedAt"] = metadata["finishedAt"].clone();
+            result["runSeconds"] = metadata["runSeconds"].clone();
+            result["language"] = metadata["language"].clone();
+            result["diarizationModel"] = metadata["diarizationModel"].clone();
+            result["runtime"] = metadata["runtime"].clone();
+            result["device"] = metadata["actualDevice"]
+                .as_str()
+                .or_else(|| metadata["executionDevice"].as_str())
+                .into();
+            if can_play {
+                let mut media_path = format!("{HISTORY}/{id}/media");
+                if app.runtime.config.server {
+                    let expires = chrono::Utc::now().timestamp() + 43200;
+                    media_path.push_str(&format!(
+                        "?expires={expires}&signature={}",
+                        signature(app, id, expires, true)
+                    ));
+                }
+                result["media"] = json!({"path":media_path,"type":content_type});
+            }
+            Ok(json_response(result))
+        }
+        "media" if can_play => send_file(&source, range, Some(content_type)).await,
+        "media" => Err(err(StatusCode::NOT_FOUND, "入力音声が保存されていません。")),
+        _ => Err(err(StatusCode::NOT_FOUND, "処理履歴が見つかりません。")),
+    }
 }
 fn mime(path: &str) -> &'static str {
     match Path::new(path)
         .extension()
         .and_then(|s| s.to_str())
         .unwrap_or("")
+        .to_ascii_lowercase()
+        .as_str()
     {
         "html" => "text/html; charset=utf-8",
         "css" => "text/css; charset=utf-8",
@@ -600,6 +735,9 @@ fn mime(path: &str) -> &'static str {
         "mp4" => "video/mp4",
         "webm" => "video/webm",
         "m4a" => "audio/mp4",
+        "aac" => "audio/aac",
+        "flac" => "audio/flac",
+        "ogg" | "opus" => "audio/ogg",
         "vtt" => "text/vtt; charset=utf-8",
         _ => "application/octet-stream",
     }
@@ -1147,15 +1285,20 @@ fn render(job: &Value, segments: &[Value], format: &str) -> Response {
     }
     json_response(payload)
 }
-fn signature(app: &App, id: &str, expires: i64) -> String {
+fn signature(app: &App, id: &str, expires: i64, history: bool) -> String {
     use hmac::{Hmac, Mac};
     let mut mac = Hmac::<sha2::Sha256>::new_from_slice(app.key.as_bytes())
         .expect("HMAC accepts any key length");
-    mac.update(format!("haas-meeting-media:v1\n{id}\n{expires}").as_bytes());
+    let scope = if history {
+        "transcription-history-media:v1"
+    } else {
+        "haas-meeting-media:v1"
+    };
+    mac.update(format!("{scope}\n{id}\n{expires}").as_bytes());
     hex::encode(mac.finalize().into_bytes())
 }
 fn valid_media(app: &App, path: &str, query: &str) -> bool {
-    let Some((id, "media")) = job_path(path) else {
+    let Some((id, "media")) = job_path(path).or_else(|| history_job_path(path)) else {
         return false;
     };
     let pairs = url::form_urlencoded::parse(query.as_bytes())
@@ -1176,7 +1319,7 @@ fn valid_media(app: &App, path: &str, query: &str) -> bool {
     };
     params
         .get("signature")
-        .is_some_and(|s| equal(s, &signature(app, id, expires)))
+        .is_some_and(|s| equal(s, &signature(app, id, expires, history_path(path))))
 }
 fn percent_decode(value: &str) -> std::result::Result<String, ApiError> {
     let mut bytes = vec![];
@@ -1389,6 +1532,71 @@ mod tests {
         });
         let url = format!("http://127.0.0.1:{port}");
         let client = reqwest::Client::new();
+        let history_url = format!("{url}{HISTORY}");
+        let history: Value = client
+            .get(&history_url)
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+        assert_eq!(history["total"], 1);
+        assert_eq!(history["jobs"][0]["fileName"], "test.wav");
+        assert!(history["jobs"][0].get("metadata").is_none());
+        let details: Value = client
+            .get(format!("{history_url}/{id}"))
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+        assert_eq!(details["media"]["path"], format!("{HISTORY}/{id}/media"));
+        let media = client
+            .get(format!("{history_url}/{id}/media"))
+            .header("Range", "bytes=2-4")
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(media.status(), StatusCode::PARTIAL_CONTENT);
+        assert_eq!(media.text().await.unwrap(), "234");
+        let text: Value = client
+            .get(format!("{history_url}/{id}/segments"))
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+        assert_eq!(text["segments"][0]["text"], "元字幕");
+        for path in [
+            history_url.clone(),
+            format!("{history_url}/{id}"),
+            format!("{history_url}/{id}/segments"),
+            format!("{history_url}/{id}/media"),
+        ] {
+            let denied = client
+                .get(path)
+                .header("Sec-Fetch-Site", "cross-site")
+                .send()
+                .await
+                .unwrap();
+            assert_eq!(denied.status(), StatusCode::FORBIDDEN);
+        }
+        let expiry = chrono::Utc::now().timestamp() + 60;
+        let query = format!(
+            "expires={expiry}&signature={}",
+            signature(&app, id, expiry, true)
+        );
+        assert!(valid_media(&app, &format!("{HISTORY}/{id}/media"), &query));
+        assert!(!valid_media(&app, &format!("/api/jobs/{id}/media"), &query));
         assert_eq!(
             client
                 .post(format!("{url}/api/jobs/{id}/cancel"))

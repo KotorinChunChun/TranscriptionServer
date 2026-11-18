@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>サーバー管理 - TranscriptionServer - v0.1.16</title><link rel="stylesheet" href="/management.css"></head>
-<body><header><div><strong>TranscriptionServer</strong><span id="version">v0.1.16</span></div><div class="header-actions"><button id="refresh" type="button">モデルを再点検</button><button id="restartServer" type="button" disabled><span class="restart-prefix">サーバーを</span>再起動</button><button id="stopServer" type="button" disabled>停止</button><button id="cancelDrain" type="button" hidden>完了待ちを取消</button><button id="cancel" type="button" hidden>操作を中止</button><select id="modelView" aria-label="モデル一覧の表示形式"><option value="simple">簡易表示</option><option value="detail">詳細表示</option></select><button id="openConnectionGuide" type="button" aria-haspopup="dialog" aria-controls="connectionGuide">接続方法</button><button id="openSettings" type="button" aria-haspopup="dialog" aria-controls="settings">設定・更新</button></div><div id="headerNotices"><p id="drainMessage" role="status" aria-live="polite" hidden></p><div id="activeOperation" role="status" aria-live="polite" hidden></div><div id="restartPanel"><p id="runtimeRestart" role="status" hidden></p></div></div></header>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>サーバー管理 - TranscriptionServer - v0.1.20</title><link rel="stylesheet" href="/management.css"></head>
+<body><header><div><strong>TranscriptionServer</strong><span id="version">v0.1.20</span></div><div class="header-actions"><button id="refresh" type="button">モデルを再点検</button><button id="restartServer" type="button" disabled><span class="restart-prefix">サーバーを</span>再起動</button><button id="stopServer" type="button" disabled>停止</button><button id="cancelDrain" type="button" hidden>完了待ちを取消</button><button id="cancel" type="button" hidden>操作を中止</button><select id="modelView" aria-label="モデル一覧の表示形式"><option value="simple">簡易表示</option><option value="detail">詳細表示</option></select><button id="openConnectionGuide" type="button" aria-haspopup="dialog" aria-controls="connectionGuide">接続方法</button><button id="openHistory" type="button" aria-haspopup="dialog" aria-controls="jobHistory" hidden>処理履歴</button><button id="openSettings" type="button" aria-haspopup="dialog" aria-controls="settings">設定・更新</button></div><div id="headerNotices"><p id="drainMessage" role="status" aria-live="polite" hidden></p><div id="activeOperation" role="status" aria-live="polite" hidden></div><div id="restartPanel"><p id="runtimeRestart" role="status" hidden></p></div></div></header>
 <main>
 <div id="dependencies" class="dependency-warning" role="status" hidden></div>
 <p id="message" role="status" aria-live="polite">接続しています…</p>
@@ -11,6 +11,29 @@
 <section id="modelSection" class="model-view-simple"><p class="guidance-note detail-only">ロードはメモリへの読み込み、アンロードはその解放です。モデルの保存ファイルは削除しません。導入は共通で1回、メモリ常駐はファイル処理・リアルタイム処理ごとに管理します。</p><div id="models" class="models"></div></section>
 <details id="details"><summary>保存容量・データ移行</summary><div id="storage"></div><button id="storageRefresh" type="button">容量を確認</button></details>
 </main>
+<dialog id="jobHistory" aria-labelledby="jobHistoryTitle">
+  <div class="heading"><h2 id="jobHistoryTitle">処理履歴</h2><button id="closeHistory" type="button">閉じる</button></div>
+  <div class="history-grid">
+    <section aria-label="ジョブ一覧">
+      <div class="history-actions"><button id="reloadHistory" type="button">更新</button><p id="historyStatus" role="status"></p></div>
+      <ul id="historyJobs"></ul>
+      <div class="history-actions"><button id="olderJobs" type="button" hidden>前のページ</button><button id="newerJobs" type="button" hidden>次のページ</button></div>
+    </section>
+    <section id="historyDetail" aria-label="ジョブの詳細">
+      <p id="historySelection" role="status"></p>
+      <div id="historyResult" hidden>
+        <h3 id="historyFileName" tabindex="-1"></h3>
+        <dl id="historyMetadata"></dl>
+        <h4>入力音声</h4>
+        <div id="historyAudio"></div>
+        <h4>認識結果</h4>
+        <p id="historyTextStatus" role="status"></p>
+        <ol id="historyTranscript"></ol>
+        <button id="moreHistoryText" type="button" hidden>続きを表示</button>
+      </div>
+    </section>
+  </div>
+</dialog>
 <dialog id="settings" aria-labelledby="settingsTitle"><div class="heading"><h2 id="settingsTitle">設定・更新</h2><button id="closeSettings" type="button">閉じる</button></div><section id="executionSettings" hidden><h3>並列処理</h3><form id="executionForm"><div class="execution-fields"><label>同時実行上限<input id="maxJobs" type="number" min="2" max="10" step="1" required></label><label>リアルタイム予約枠<input id="realtimeReserved" type="number" min="1" max="9" step="1" required></label><label>GPU同時実行上限<input id="maxGpuJobs" type="number" min="1" max="10" step="1" required></label><label>RAM上限 GB（0＝自動）<input id="ramLimit" type="number" min="0" max="16777" step="0.1" required></label><label>VRAM上限 GB（0＝自動）<input id="vramLimit" type="number" min="0" max="16777" step="0.1" required></label></div><p id="executionLimits"></p><p>メモリ上限は見積りによる開始制御です。リアルタイム優先・超過分は待機します。</p><button id="saveExecution" type="submit">並列処理設定を保存</button><p id="executionMessage" role="status"></p></form></section><section><h3>サーバーの更新</h3><p id="updateVersion"></p><div id="updateMessage" role="status" aria-live="polite"></div><div class="actions"><button id="updateCheck" type="button">更新を確認</button><button id="updateApply" type="button" hidden>更新して再起動</button></div></section><section><h3>参考速度・フィラーの測定条件</h3><dl id="referenceEnvironment" class="reference-environment"></dl><p id="referenceCaution"></p><div id="referenceSamples"></div></section></dialog>
 <dialog id="connectionGuide" aria-labelledby="connectionGuideTitle"><div class="heading"><h2 id="connectionGuideTitle">クライアントからの接続</h2><button id="closeConnectionGuide" type="button">閉じる</button></div><p id="connectionPreparation" role="status" aria-live="polite"></p><section><h3 id="connectionAddressTitle">接続先URL</h3><div id="connectionUrls"></div><p id="connectionAddressNote"></p><p id="connectionAuth"></p></section><section><h3>クライアントPCで設定</h3><ol><li>TranscriptCutter・MeetingVisualizer・AI Roomなどの接続設定を開きます。</li><li>文字起こしサーバーの接続先に、上のURLを設定して接続します。別PCではlocalhostや127.0.0.1を指定しません。</li><li>サーバーが返すモデル一覧から利用するモデルを選びます。音声はサーバーPCで処理されます。</li></ol></section><section id="connectionTls" hidden><h3>HTTPSの初回準備</h3><p>社内共通CAを使用する場合、管理者からExample-Dev-RootCA.cerを受け取り、クライアントPCの「現在のユーザー」→「信頼されたルート証明機関」に登録します。登録済みなら不要です。管理者が示す拇印と照合してください。</p><p>信頼登録後、上のHTTPS URLをブラウザーで開いて証明書警告が出ないことを確認します。警告が残る場合は、期限・接続先IP／名前と証明書の一致を管理者へ確認してください。配布するのは公開CA証明書だけです。</p></section><details><summary>接続できないとき</summary><p>サーバーが起動しているか、初期準備が終わっているかを確認します。管理者は待受アドレス、信頼LAN範囲、WindowsファイアウォールのTCPポート許可を確認してください。HTTPSで動くクライアントからは、HTTPSのサーバーURLを使用します。</p><p>スタートメニュー／デスクトップのTranscriptionServerからサーバーを起動できます。起動済みなら管理画面を開きます。接続案内は上部の「接続方法」から再表示できます。</p></details></dialog>
 <dialog id="confirm" aria-labelledby="confirmTitle"><h2 id="confirmTitle"></h2><p id="confirmText"></p><div class="actions"><button id="back" type="button">戻る</button><button id="accept" type="button">実行する</button></div></dialog><script type="module" src="/management.mjs"></script></body></html>

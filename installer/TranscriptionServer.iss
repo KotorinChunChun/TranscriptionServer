@@ -32,6 +32,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir={#ReleaseDir}
 Compression=lzma2/fast
+SetupIconFile=TranscriptionServer.ico
 SolidCompression=yes
 WizardStyle=modern
 ShowLanguageDialog=no
@@ -54,9 +55,9 @@ Source: "{#BundleDir}\TranscriptionServer.exe"; DestName: "TranscriptionSetupCon
 
 [Icons]
 #ifndef AcceptanceBuild
-Name: "{group}\TranscriptionServer"; Filename: "{app}\TranscriptionServer.exe"; Parameters: "--installed --open"; WorkingDir: "{app}"
-Name: "{group}\クライアント接続方法"; Filename: "{app}\TranscriptionServer.exe"; Parameters: "--installed --connection-guide"; WorkingDir: "{app}"
-Name: "{autodesktop}\TranscriptionServer"; Filename: "{app}\TranscriptionServer.exe"; Parameters: "--installed --open"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{group}\TranscriptionServer"; Filename: "{app}\TranscriptionServer.exe"; Parameters: "--installed --open"; WorkingDir: "{app}"; IconFilename: "{app}\TranscriptionServer.exe"
+Name: "{group}\クライアント接続方法"; Filename: "{app}\TranscriptionServer.exe"; Parameters: "--installed --connection-guide"; WorkingDir: "{app}"; IconFilename: "{app}\TranscriptionServer.exe"
+Name: "{autodesktop}\TranscriptionServer"; Filename: "{app}\TranscriptionServer.exe"; Parameters: "--installed --open"; WorkingDir: "{app}"; IconFilename: "{app}\TranscriptionServer.exe"; Tasks: desktopicon
 #endif
 
 [Run]

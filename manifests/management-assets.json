@@ -2,6 +2,7 @@
   "management.html",
   "management.css",
   "management.mjs",
+  "management-history.mjs",
   "connection-guide.mjs",
   "management-model-list.mjs",
   "management-model-state.mjs",

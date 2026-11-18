@@ -1,4 +1,4 @@
-# TranscriptionServer v0.1.19
+# TranscriptionServer v0.1.20
 
 動画・音声の文字起こしと話者分離を、複数のアプリから共通APIで利用するWindows向けサーバーです。RustがHTTP・ジョブ・SQLite履歴・管理画面を提供し、認識エンジンやモデルは必要時に専用領域へ導入します。
 
@@ -48,4 +48,4 @@ cargo run -- --local --host 127.0.0.1 --port 8769
 
 `scripts/build-release.py --portable-release` はWindows x64の展開型ZIPとSHA-256一覧を作成します。実行環境とモデルは起動後に準備します。Inno Setupインストーラーを作る場合は[署名設定](docs/installer-signing.md)が必要です。
 
-確認内容と未検証事項は[開発記録](dev/history/v0.1.19/v0.1.19-imp.md)を参照してください。
+サーバーPCの管理画面で「処理履歴」を開くと、保存済みの入力音声、認識結果と使用モデルを確認できます。[処理履歴と運用](docs/operations.md)
