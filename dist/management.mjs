@@ -40,6 +40,8 @@ const isActive = status => !!status.running?.length || Object.values(status.queu
 let token = '', bearer = '', snapshot = null, updating = null, pending = null, timer = null;
 let lastStructure = '', externalReady = false, restarting = false, restartSupported = false;
 let readOnly = false;
+let stopTicket = '';
+let stopPending = false;
 let modelSort = 'default';
 let runtimeRendered = false;
 
@@ -464,15 +466,7 @@ function renderModels(value) {
   $('modelSection').classList.toggle('model-view-simple', simple);
   const expanded = new Map([...container.querySelectorAll('details.model-group')].map(group => [group.dataset.usage, group.open]));
   container.replaceChildren();
-  const drain = value.lifecycle || {};
-    const local = ['127.0.0.1','localhost','[::1]'].includes(location.hostname);
-    $('stopServer').disabled = readOnly || !local || drain.active || value.busy;
-    $('stopServer').title = local ? '受付済み処理の完了を待って正常終了します。' : '停止はサーバーPCから操作してください。';
-    $('drainMessage').hidden = !drain.active;
-    $('drainMessage').textContent = drain.active ? `新規受付を停止しています。残り${drain.jobsRemaining ?? '確認中'}件／転送${drain.uploadsRemaining ?? 0}件：${drain.state === 'stopping' ? '正常終了中' : '完了待ち'}` : '';
-    $('cancelDrain').hidden = !drain.active || drain.state === 'stopping';
-    $('cancelDrain').disabled = readOnly || !local;
-    const active = drain.active || isActive(value.status);
+  const active = value.lifecycle?.active || isActive(value.status);
   const groups = new Map();
   const displayModels = [...value.models, ...optionalModelCandidates.filter(candidate => !value.models.some(m => m.id === candidate.id))];
   for (const model of displayModels) {
@@ -560,12 +554,13 @@ async function refresh() {
     $('restartServer').classList.toggle('restart-needed', value.restartRequired === true);
     const drain = value.lifecycle || {};
     const local = ['127.0.0.1','localhost','[::1]'].includes(location.hostname);
-    $('stopServer').disabled = readOnly || !local || drain.active || value.busy;
+    $('stopServer').disabled = readOnly || !local || stopPending || drain.active || value.busy;
     $('stopServer').title = local ? '受付済み処理の完了を待って正常終了します。' : '停止はサーバーPCから操作してください。';
     $('drainMessage').hidden = !drain.active;
     $('drainMessage').textContent = drain.active ? `新規受付を停止しています。残り${drain.jobsRemaining ?? '確認中'}件／転送${drain.uploadsRemaining ?? 0}件：${drain.state === 'stopping' ? '正常終了中' : '完了待ち'}` : '';
-    $('cancelDrain').hidden = !drain.active || drain.state === 'stopping';
-    $('cancelDrain').disabled = readOnly || !local;
+    if (drain.id === stopTicket && drain.state === 'cancelled') stopTicket = '';
+    $('cancelDrain').hidden = !stopTicket || drain.id !== stopTicket || !drain.active || drain.state === 'stopping';
+    $('cancelDrain').disabled = readOnly || !local || stopPending;
     const active = drain.active || isActive(value.status);
     $('restartServer').disabled = !restartSupported || value.busy || active || value.restartBlocked === true;
     const operation = value.operation;
@@ -588,7 +583,14 @@ async function refresh() {
     const migrated = value.migration ? ' ／ 旧名から移行済み・旧データ保持' : '';
     $('storage').textContent = `データ保存先: ${value.dataDirectory || value.dataFolderName || ''}` + migrated;
   } catch (error) {
-    message(error.message, true);
+    if (stopTicket && error instanceof TypeError) {
+      $('drainMessage').hidden = true;
+      $('cancelDrain').hidden = true;
+      $('stopServer').disabled = true;
+      message('サーバーとの接続が切れました。再開するにはスタートメニューから TranscriptionServer を起動してください。');
+    } else {
+      message(error.message, true);
+    }
   }
 }
 $('auth').onsubmit = async event => {
@@ -611,6 +613,41 @@ $('restartServer').onclick = () => ask(
   'TranscriptionServerを再起動します。録音・字幕・設定は保持されます。一時的に接続が切れ、起動後に再接続します。',
   restartServer,
 );
+$('stopServer').onclick = () => ask(
+  '停止の確認',
+  '新規受付を停止し、受付済みの処理が完了してからサーバーを終了します。',
+  requestStop,
+);
+async function requestStop() {
+  if (stopPending) return;
+  stopPending = true;
+  $('stopServer').disabled = true;
+  try {
+    const accepted = await api('/api/admin/drain', {action: 'shutdown', confirm: 'drain-server'});
+    stopTicket = accepted.id;
+    await refresh();
+  } catch (error) {
+    message(error.message, true);
+  } finally {
+    stopPending = false;
+    $('cancelDrain').disabled = readOnly;
+  }
+}
+$('cancelDrain').onclick = async () => {
+  if (!stopTicket || stopPending) return;
+  stopPending = true;
+  $('cancelDrain').disabled = true;
+  try {
+    await api('/api/admin/drain/cancel', {id: stopTicket});
+    stopTicket = '';
+    await refresh();
+  } catch (error) {
+    message(error.message, true);
+  } finally {
+    stopPending = false;
+    $('cancelDrain').disabled = readOnly;
+  }
+};
 async function restartServer() {
   restarting = true;
   clearInterval(timer);

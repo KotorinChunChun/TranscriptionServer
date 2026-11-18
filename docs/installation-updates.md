@@ -8,7 +8,7 @@
 
 ## Windows x64への導入
 
-TranscriptionServer-v0.1.10-setup-x64.exeを実行する。プログラム先は既定%LOCALAPPDATA%/Programs/TranscriptionServer、ユーザー単位で管理者昇格なし。Windowsサービス/PC起動時の自動起動は作らない。署名は未設定なので配布元とSHA256SUMS.txtを照合する。
+配布されている `TranscriptionServer-v<バージョン>-setup-x64.exe` を実行します。発行元が KotorinChunChun であることと、配布元のSHA256SUMS.txtとの一致を確認してください。この開発者署名を発行元として信頼しているPCでは、Windowsが署名の有効性を検証できます。既定のプログラム先は %LOCALAPPDATA%/Programs/TranscriptionServer です。ユーザー単位で管理者権限なしに導入します。
 
 本体はRust EXE。配布物にはPython/Whisper、NeMo-Speech.cpp、speech.cpp、FFmpeg/FFprobe、モデル重み、CUDAを含めない。管理画面から必要な実行環境を専用領域へオンライン導入し、サーバー再起動後にモデルを導入する。Pythonを導入するのはWhisper専用ワーカーだけで、PCのPython/PATHは変更しない。起動時の点検結果に未準備の理由を表示する。
 
@@ -38,6 +38,8 @@ TranscriptionServer-v0.1.10-setup-x64.exeを実行する。プログラム先は
 利用者が確認画面で適用した時にだけ取得・再起動する。転送/認識中は拒否し、適用直前は新規受付を止める。公開インストーラーをHTTPSで取得し、配布ホストを制限して、サイズとSHA-256を照合する。
 
 Rust本体EXEをアプリ外の更新キャッシュへコピーし、独立したヘルパーとして起動する。親PID/開始時刻/終了状態と承認引き継ぎを照合し、プログラムとSQLiteをバックアップする。サイレント適用後に同じ引数で起動し、healthのappId/版/実PIDを確認する。更新ヘルパーにPythonは使わない。
+
+v0.1.18以前から更新する場合は、署名済みインストーラーを使います。公開リリースのトークン不要の更新確認には v0.1.19 以降が必要です。
 
 ## 失敗と復旧
 
