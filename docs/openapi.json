@@ -3,7 +3,7 @@
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
   "info": {
     "title": "TranscriptionServer API",
-    "version": "0.1.20",
+    "version": "0.1.21",
     "description": "未リリース候補の認識APIと独自管理API。OpenAI全仕様互換ではない。既存ジョブ・復旧・資源制御を維持する。管理状態の動的拡張は追加プロパティとして扱う。WebSocketイベントはx-websocket拡張。",
     "license": {
       "name": "リポジトリのLICENSEを参照"

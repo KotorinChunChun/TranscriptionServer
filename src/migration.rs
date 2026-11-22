@@ -113,7 +113,11 @@ pub fn migrate(legacy: &Path, target: &Path) -> Result<Value> {
         bail!("データ移行の空き容量が不足しています。旧データは保持しています。")
     }
     copy(legacy, &stage, true)?;
-    db.backup("main", stage.join("workbench.sqlite3"), None)?;
+    db.backup(
+        "main",
+        stage.join("workbench.sqlite3"),
+        rusqlite::backup::NO_PROGRESS,
+    )?;
     let snapshot = Connection::open(stage.join("workbench.sqlite3"))?;
     let check: String = snapshot.query_row("PRAGMA quick_check", [], |r| r.get(0))?;
     if check != "ok" {

@@ -262,7 +262,11 @@ pub async fn apply(path: &Path) -> Result<i32> {
                 database,
                 rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
             )?;
-            db.backup("main", folder.join("workbench-backup.sqlite3"), None)?;
+            db.backup(
+                "main",
+                folder.join("workbench-backup.sqlite3"),
+                rusqlite::backup::NO_PROGRESS,
+            )?;
         }
         report(
             &folder,

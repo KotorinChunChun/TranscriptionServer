@@ -1,4 +1,4 @@
-# TranscriptionServer v0.1.20
+# TranscriptionServer v0.1.21
 
 動画・音声の文字起こしと話者分離を、複数のアプリから共通APIで利用するWindows向けサーバーです。RustがHTTP・ジョブ・SQLite履歴・管理画面を提供し、認識エンジンやモデルは必要時に専用領域へ導入します。
 

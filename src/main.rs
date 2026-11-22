@@ -29,6 +29,8 @@ mod scheduler;
 #[cfg(all(test, windows))]
 mod scheduler_tests;
 mod setup_control;
+#[cfg(test)]
+mod sqlite_compat_tests;
 mod store;
 mod streaming;
 mod telemetry;
